@@ -1,0 +1,24 @@
+[package]
+name = "conquer-hazardera"
+version = "0.1.0"
+authors = ["oliver-giersch <oliver.giersch@b-tu.de>"]
+edition = "2018"
+
+[features]
+default = ["std"]
+
+global = ["std"]
+std = ["conquer-once/std", "conquer-reclaim/std"]
+
+[dependencies]
+cfg-if = "0.1.10"
+
+[dependencies.conquer-once]
+version = "0.2.0"
+default-features = false
+optional = true
+
+[dependencies.conquer-reclaim]
+git = "https://github.com/oliver-giersch/conquer-reclaim"
+branch = "api_revision"
+default-features = false
