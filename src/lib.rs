@@ -14,13 +14,28 @@ pub enum RetireStrategy {
     Local,
 }
 
+impl RetireStrategy {
+    fn global_state(&self) -> GlobalRetireState {
+        match self {
+            RetireStrategy::Global => GlobalRetireState::GlobalRetire(()),
+            RetireStrategy::Local => GlobalRetireState::LocalRetire(()),
+        }
+    }
+}
+
 pub struct HazEra<const S: RetireStrategy> {
     global_era: AtomicU64,
     hazard_eras: HazardEraList,
     global_state: GlobalRetireState,
 }
 
-impl<const S: RetireStrategy> Reclaim for HazEra<S> {
+impl<const S: RetireStrategy> Default for HazEra<S> {
+    fn default() -> Self {
+        todo!()
+    }
+}
+
+impl Reclaim for HazEra<{ RetireStrategy::Global }> {
     type Header = ();
     type LocalState = ();
 
@@ -29,15 +44,13 @@ impl<const S: RetireStrategy> Reclaim for HazEra<S> {
     }
 }
 
-struct Header {
-    create_era: u64,
-    retire_era: u64,
-}
+impl Reclaim for HazEra<{ RetireStrategy::Local }> {
+    type Header = ();
+    type LocalState = ();
 
-#[repr(C)]
-struct HeaderNode {
-    next: *mut Self,
-    header: Header,
+    unsafe fn build_local_state(&self) -> Self::LocalState {
+        unimplemented!()
+    }
 }
 
 struct HazardEraList;

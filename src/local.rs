@@ -1,9 +1,14 @@
-use conquer_reclaim::{LocalState, Retired};
+use core::marker::PhantomData;
+
+use conquer_reclaim::{LocalState, Reclaim, Retired};
 
 use crate::global::GlobalRef;
 use crate::{HazEra, RetireStrategy};
 
-pub struct LocalRef<'local, 'global, const S: RetireStrategy>(Ref<'local, 'global, S>);
+pub struct LocalRef<'local, 'global, R> {
+    local: Ref<'local, 'global>,
+    _marker: PhantomData<R>,
+}
 
 unsafe impl<'local, 'global, const S: RetireStrategy> LocalState for LocalRef<'local, 'global, S> {
     type Guard = ();
@@ -18,11 +23,11 @@ unsafe impl<'local, 'global, const S: RetireStrategy> LocalState for LocalRef<'l
     }
 }
 
-pub struct Local<'global, const S: RetireStrategy> {
-    global: GlobalRef<'global, S>,
+pub struct Local<'global> {
+    global: GlobalRef<'global>,
 }
 
-enum Ref<'local, 'global, const S: RetireStrategy> {
-    Ref(&'local Local<'global, S>),
-    Raw(*const Local<'global, S>),
+enum Ref<'local, 'global> {
+    Ref(&'local Local<'global>),
+    Raw(*const Local<'global>),
 }
